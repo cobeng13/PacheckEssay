@@ -1,0 +1,6 @@
+**
+!requirements.txt
+!essay_web/
+!essay_web/**
+**/__pycache__/
+**/*.pyc

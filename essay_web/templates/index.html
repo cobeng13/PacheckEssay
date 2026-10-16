@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Essay Checker</title><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script></head>
+<body><main><header><p class="eyebrow">FACULTY TOOLS</p><h1>Essay Checker</h1><p>Grade responses against your rubric, then download reports for your LMS.</p></header>
+<nav aria-label="Workflow"><span>1 · Upload</span><span>2 · Map questions</span><span>3 · Rubrics</span><span>4 · Grade & download</span></nav>
+<p id="error" role="alert" hidden></p>
+<section id="upload"><h2>1. Upload responses</h2><div class="grid">
+<label>Faculty name <input id="faculty" required maxlength="160" autocomplete="name"></label>
+<label>Department <input id="department" maxlength="160"></label><label>Course <input id="course" maxlength="160"></label>
+<label>Assessment <input id="assessment" maxlength="160"></label></div><p class="muted">Usage is recorded under the faculty name you enter. No account required.</p>
+<label>Responses file (CSV, JSON, or HTML; up to {{ max_upload_mb }} MB)<input type="file" id="input" accept=".csv,.json,.html,.htm"></label>
+<button id="load">Preview responses</button><div id="preview" class="table-scroll"></div></section>
+<section id="mapping" hidden><h2>2. Map questions</h2><p>Select identity columns and the response columns for each question. Select several columns to merge them into one answer.</p><div id="identity" class="grid"></div><div id="question-mapping"></div><button id="add-question" class="secondary">Add question</button><button id="to-rubrics">Continue to rubrics</button></section>
+<section id="rubrics" hidden><h2>3. Rubrics & model answers</h2><div id="question-rubrics"></div>
+<p class="muted">Use criterion allocations such as “Accuracy (5 points possible)”. Recognized rubric allocations determine the maximum score.</p>
+<button id="save-preset" class="secondary">Download rubric preset</button><label>Load rubric preset <input type="file" id="preset" accept=".json"></label>
+<button id="to-run">Review grading settings</button></section>
+<section id="run" hidden><h2>4. Grade & download</h2><label>Grading model <select id="model">{% for model in models %}<option value="{{ model }}" {% if model==default_model %}selected{% endif %}>{{ model }}</option>{% endfor %}</select></label>
+<p class="muted">GPT-6 Luna is the economical candidate. The initial default remains GPT-4.1 mini until your instructor-scored comparison is complete.</p>
+<details><summary>Grading instructions</summary><label>System instruction<textarea id="instruction">{{ instruction }}</textarea></label></details>
+<label class="check"><input type="checkbox" id="per-student" checked> Include combined student reports</label><label class="check"><input type="checkbox" id="per-question"> Include individual question reports</label>
+<button id="estimate" class="secondary">Estimate usage</button><p id="estimate-output" role="status"></p><button id="submit" disabled>Start grading</button>
+<p class="muted">Your essays are sent to the configured AI provider for grading. Server copies and downloads expire 24 hours after the job ends. Usage metadata remains for manual charging. Review grades before LMS upload.</p></section>
+<section id="job" hidden><h2>Grading progress</h2><p id="job-status" role="status"></p><progress id="progress" max="1" value="0"></progress><p id="job-message"></p>
+<p><a id="private-link">Save this private job link</a> to return later. Anyone with this link can access this job until it expires.</p>
+<label class="check" id="uncertain-label" hidden><input id="retry-unknown" type="checkbox"> I understand uncertain calls may already have been billed, and want to retry them.</label>
+<button id="cancel" class="secondary">Stop after current request</button><button id="resume" hidden>Resume missing results</button><button id="download" hidden>Download results ZIP</button><p id="expiry" class="muted"></p>
+<a href="/">Start another batch</a></section>
+<footer>Essay Checker · Rubric-based grading · Faculty review required</footer></main></body></html>

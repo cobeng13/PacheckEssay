@@ -1,0 +1,56 @@
+services:
+  web:
+    build: .
+    image: essay-checker:local
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:${ESSAY_PORT:-8001}:8000"
+    environment: &settings
+      ESSAY_DATA: /data
+      SECURE_COOKIE: "true"
+      DEFAULT_MODEL: ${DEFAULT_MODEL:-gpt-4.1-mini}
+      DAILY_BUDGET_USD: ${DAILY_BUDGET_USD:-5}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-5}
+      MAX_TASKS: ${MAX_TASKS:-2000}
+      MAX_QUEUE: ${MAX_QUEUE:-20}
+      MAX_OUTPUT_TOKENS: ${MAX_OUTPUT_TOKENS:-8192}
+      REQUESTS_PER_MINUTE: ${REQUESTS_PER_MINUTE:-60}
+      FORWARDED_ALLOW_IPS: ${TRUSTED_PROXY_IPS:-127.0.0.1}
+    volumes:
+      - essay-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 6s
+      start_period: 30s
+      retries: 3
+  worker:
+    build: .
+    image: essay-checker:local
+    command: ["python", "-m", "essay_web.worker"]
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 150s
+    environment:
+      <<: *settings
+      OPENAI_API_KEY_FILE: /run/secrets/openai_api_key
+    secrets:
+      - openai_api_key
+    volumes:
+      - essay-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+secrets:
+  openai_api_key:
+    file: ${OPENAI_SECRET_FILE:?Set OPENAI_SECRET_FILE to a server-owned key file outside this project}
+volumes:
+  essay-data:
