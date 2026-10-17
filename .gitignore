@@ -3,6 +3,7 @@ __pycache__/
 .venv/
 .env
 .env.*
+compose.local.yaml
 !.env.example
 secrets/
 .secrets/

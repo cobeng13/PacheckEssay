@@ -9,3 +9,7 @@
 Docker is not installed on this workstation, so an actual image build and container/proxy smoke test have not been run. No server was deployed, real API key read, paid API request made, or real student record opened. Instructor-scored model evaluation remains a staging requirement; GPT-4.1 mini is the initial default and GPT-6 Luna is selectable.
 
 See README.md for setup, manual usage exports, retention/backups, and the staging checklist. Desktop `Reference` files are unchanged.
+
+## Plain-Docker updater — 2026-10-17
+
+Added `deploy/update.sh` and its standard-library Python helper, following the scheduler's pull/build/readiness pattern. The combined suite passed **52 tests**, including 17 updater checks with fake Docker and Bash syntax validation. Tests verify configuration preservation, active-job races, build/start/readiness failures, temporary environment cleanup, and restoration of previous containers. No real Docker deployment, key-file access, or paid API call was performed. See `UPDATE.md` for Linux server usage and limitations.

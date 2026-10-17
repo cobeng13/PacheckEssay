@@ -2,6 +2,27 @@
 
 For your first local run, see [API key setup and local testing](KEY_SETUP.md). Keep the key outside this repository. Copying the code to GitHub does not transfer the key or deploy the application.
 
+## Updating an existing plain-Docker deployment
+
+On your Linux Docker host, finish or cancel queued/running grading jobs, then run from this repository:
+
+```sh
+git pull --ff-only
+bash deploy/update.sh
+```
+
+The initial `git pull` obtains the new updater. On subsequent updates, just run `bash deploy/update.sh`: it pulls `main` from `cobeng13/PacheckEssay`, executes the freshly pulled updater, builds before downtime, and replaces both containers. Python 3 is required on the host; no Python packages or Docker Compose are needed. Run it as the checkout owner. It requests sudo for Docker if your account cannot access the daemon directly.
+
+Defaults are `pacheckessay-web` and `pacheckessay-worker`, matching the plain-Docker setup. If you used different names:
+
+```sh
+bash deploy/update.sh --web-container YOUR_WEB_NAME --worker-container YOUR_WORKER_NAME
+```
+
+The updater reads existing Docker configuration rather than loading `.env`. It preserves the actual published address/port (including LAN port **8005**), environment settings, persistent `/data` mount, read-only key-file bind mount, restart policy, and supported security options. It does not open the key file, print environment values, delete volumes, prune images, or back up student content. Temporary environment files have private permissions and are removed after use. It requires the standard bridge network; advanced networks/devices/resource limits require a manual deployment and are rejected before the switch.
+
+The app must be idle. New submissions during the image build cause the update to stop before interrupting the worker. Expect brief web downtime during the switch. Readiness requires a fresh heartbeat from the replacement worker and a successful web health response. If replacement startup fails, the updater restores the previous containers against the same persistent data and exits with an error. It never rewinds the Git checkout; fix the problem and rerun. Automatic container restoration does not reverse future database migrations, so review migration instructions for future releases. Docker itself is required for a real host smoke test; the automated updater tests simulate Docker failure/recovery without accessing keys or running paid requests.
+
 Standalone adaptation of the private Tkinter essay checker. `Reference` is unchanged. The browser UI uses FastAPI and Jinja; a separate Python worker processes persistent SQLite jobs. No faculty accounts, payment processing, or public job directory.
 
 ## Deploy on your Docker server
